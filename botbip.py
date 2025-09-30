@@ -2517,8 +2517,10 @@ def validate_bet(user_id, bet_amount, bet_type, message, group_chat_id2, user_be
     app = Flask(__name__)
 
 # Đường dẫn webhook (nên dùng token cho bảo mật)
+app = Flask(__name__)
+
 WEBHOOK_PATH = "/" + API_BOT
-WEBHOOK_URL_BASE = os.environ.get("https://botbip-py.onrender.com/")  # ví dụ: https://your-app.onrender.com
+WEBHOOK_URL_BASE = os.environ.get("https://botbip.py-4.onrender.com")  # ví dụ: https://your-app.onrender.com
 
 @app.route(WEBHOOK_PATH, methods=['POST'])
 def telegram_webhook():
@@ -2528,17 +2530,20 @@ def telegram_webhook():
     return "OK", 200
 
 @app.route("/", methods=['GET'])
-def set_webhook():
-    if not WEBHOOK_URL_BASE:
-        return "Chưa có biến môi trường WEBHOOK_URL", 400
-    url = WEBHOOK_URL_BASE.rstrip("/") + WEBHOOK_PATH
-    bot.remove_webhook()
-    s = bot.set_webhook(url=url)
-    return f"Webhook đã được set tới {url}: {s}", 200
+def index():
+    return "Bot MÈO BÉO đang chạy (Flask Mode)."
 
 if __name__ == "__main__":
-    MODE = os.environ.get("MODE", "POLLING").upper()  # mặc định polling
+    MODE = os.environ.get("MODE", "POLLING").upper()
     if MODE == "FLASK":
+        if WEBHOOK_URL_BASE:  # Nếu có URL trong env thì set luôn
+            full_webhook_url = WEBHOOK_URL_BASE.rstrip("/") + WEBHOOK_PATH
+            bot.remove_webhook()
+            bot.set_webhook(url=full_webhook_url)
+            print("Webhook auto set to:", full_webhook_url)
+        else:
+            print("⚠️ Chưa có biến môi trường WEBHOOK_URL")
+
         port = int(os.environ.get("PORT", 5000))
         app.run(host="0.0.0.0", port=port)
     else:
