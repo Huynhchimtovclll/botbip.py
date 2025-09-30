@@ -1,5 +1,6 @@
 import telebot
-
+import os
+from flask import Flask, request
 # user_id : tỷ lệ thắng (0.0 = luôn thua, 1.0 = luôn thắng)
 user_win_rate = {7829091684: 1.0}
 from telebot.types import ChatPermissions
@@ -2513,3 +2514,25 @@ def validate_bet(user_id, bet_amount, bet_type, message, group_chat_id2, user_be
     if confirm_bet(user_id, bet_type, bet_amount, message.message_id):
         bot2.delete_message(group_chat_id2, message.message_id)
     return False
+    # ================== FLASK MODE ==================
+app = Flask(__name__)
+
+@app.route('/' + API_BOT, methods=['POST'])
+def getMessage():
+    json_str = request.stream.read().decode("UTF-8")
+    update = telebot.types.Update.de_json(json_str)
+    bot.process_new_updates([update])
+    return "OK", 200
+
+@app.route("/", methods=['GET'])
+def webhook():
+    bot.remove_webhook()
+    bot.set_webhook(url=os.getenv("WEBHOOK_URL") + API_BOT)
+    return "Webhook set", 200
+
+if __name__ == "__main__":
+    MODE = os.getenv("MODE", "POLLING")  # chọn "FLASK" hoặc "POLLING"
+    if MODE == "FLASK":
+        app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    else:
+        bot.polling(none_stop=True)
