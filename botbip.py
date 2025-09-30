@@ -2520,7 +2520,7 @@ def validate_bet(user_id, bet_amount, bet_type, message, group_chat_id2, user_be
 app = Flask(__name__)
 
 WEBHOOK_PATH = "/" + API_BOT
-WEBHOOK_URL_BASE = os.environ.get("https://botbip.py-4.onrender.com")  # ví dụ: https://your-app.onrender.com
+WEBHOOK_URL_BASE = os.environ.get("https://botbip.py-5.onrender.com")  # ví dụ: https://your-app.onrender.com
 
 @app.route(WEBHOOK_PATH, methods=['POST'])
 def telegram_webhook():
